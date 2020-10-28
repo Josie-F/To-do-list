@@ -1,0 +1,64 @@
+* {
+    font-family: 'Courier New', Courier, monospace;
+}
+.done {
+   text-decoration: line-through;
+}
+
+.to-do {
+    margin: auto;
+    width: 50%;
+    border: 3px solid rgb(135, 202, 199);
+    border-radius: 20px;
+    padding: 10px;
+}
+
+h1 {
+    text-align: center;
+    
+    border-bottom: solid slategrey 1px;
+}
+h2 {
+    text-align: center;
+    justify-content: center;
+}
+.s-form {
+    margin: auto;
+    width: 30%;
+    padding: 10px;
+    position: relative;
+}
+article {
+    width: 50%;
+    border: 3px solid rgb(135, 202, 199);
+    border-radius: 20px;
+    padding: 10px;
+}
+
+section {
+    display: grid;
+    grid-template-columns: auto;
+    grid-template-rows: none;
+}
+
+li {
+    max-width: 10rem;
+}
+.highlight {
+    background-color:yellow;
+   
+}
+
+.hl {
+    margin: 0 auto;
+    width: 200px;
+    text-align: center;
+    padding: 10px;
+    display: inline;
+
+}
+ul {
+    width: 30%;
+    margin: auto;
+}
+

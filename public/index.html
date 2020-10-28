@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" href="style.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://kit.fontawesome.com/6a4643588e.js" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/apprun/dist/apprun-html.js"></script>
+</head>
+
+<body>
+    <main id="app"></main>
+    <script>
+
+        const state = {
+            tasks: []
+        }
+
+        const viewButton = task => {
+            if (task.status) {
+                return `<button class="btn" onclick="app.run('delete', ${task.id})">Delete</button>`
+            } else {
+                return `<button onclick="app.run('done', ${task.id})">Done</button>`
+            }
+        }
+
+
+
+        const view = state => `
+        <div class="to-do">
+            <h1>To do list</h1>
+            <section>
+                <ul>
+                    ${state.tasks.map(task => {
+            return `<li id="${task.id}" draggable="true" onDragStart="app.run('onDragStart', event)" class="${task.status ? 'done' : ''} ${task.highlight ? 'highlight' : ''}">${task.desc} ${viewButton(task)} </li>`
+        }).join("")}
+                </ul>
+                    <div class="s-form">
+                    <form onsubmit="event.preventDefault();app.run('add', this)">
+                        <input name="desc" placeholder="Add a task" />
+                        <button>Add</button>
+                    </form>
+                    </div>
+                </section>
+                </div>
+                <section>
+                    <article  class="hl" ondrop="app.run('highlight', event)" ondragover="event.preventDefault()">
+                        <h2>
+                        Important task!
+                        </h2>
+                    </article>
+                </section>
+                <section>
+                
+                    <article class="hl">
+                    <div ondragover="event.preventDefault()" ondrop="app.run('drop', event)" class="far fa-trash-alt fa-7x">
+                    </div>
+                    </article>
+        
+            </section>
+            `
+
+        const update = {
+            add: (state, form) => {
+                const data = new FormData(form)
+                const task = {
+                    id: window.crypto.getRandomValues(new Uint8Array(2)).join(''),
+                    desc: data.get('desc'),
+                    highlight: false,
+                    status: 0
+                }
+                const postRequest = {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(task)
+                }
+                fetch('/tasks', postRequest).then(() => app.run('getTasks'))
+                return state
+            },
+
+
+            done: (state, id) => {
+
+                const task = state.tasks.find((task) => { return task.id == id })
+                console.log(state.tasks, id.toString())
+                task.status = 1
+                return state
+            },
+            delete: (state, id) => {
+                const getRequest = {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                }
+                fetch(`/tasks/${id}/delete`, getRequest).then(() => app.run('getTasks'))
+                return state
+            },
+            onDragStart: (state, event) => {
+                const id = event.dataTransfer.setData('text', event.target.id)
+                return state
+                // console.log(event)
+            },
+            drop: (state, event) => {
+                event.preventDefault()
+                const id = event.dataTransfer.getData('text')
+                const index = state.tasks.findIndex(task => task.id == id)
+                state.tasks.splice(index, 1)
+
+                return state
+            },
+            highlight: (state, event) => {
+                event.stopPropagation()
+                event.preventDefault()
+                const id = event.dataTransfer.getData('text')
+                const task = state.tasks.find(task => task.id == id)
+                task.highlight = true
+                return state
+            },
+            getTasks: async (state) => {
+                const tasks = await fetch('/tasks').then(res => res.json())
+                state.tasks = tasks
+                return state
+            }
+
+        }
+
+
+        app.start('app', state, view, update)
+        app.run('getTasks')
+
+    </script>
+</body>
+
+</html>
